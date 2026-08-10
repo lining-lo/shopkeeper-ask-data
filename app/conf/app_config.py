@@ -1,7 +1,7 @@
 """
   @Author:lining-lo
   @Time:2026/8/8
-  @Desc: 解析conf/app_config.yaml文件, 生成指定类型的对象
+  @Desc:解析conf/app_config.yaml文件, 生成指定类型的对象
 """
 from pathlib import Path
 from omegaconf import OmegaConf
