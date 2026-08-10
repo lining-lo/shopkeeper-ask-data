@@ -25,7 +25,7 @@ class MysqlClientManager:
         return f"mysql+asyncmy://{self.config.user}:{self.config.password}@{self.config.host}/{self.config.database}?charset=utf8mb4"
 
     # 初始化
-    def init(self):
+    def init_client(self):
         # 创建一个异步引擎
         self.client = create_async_engine(
             self._get_url(),
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     # 测试orm的添加和查询
     async def test_orm():
         # 初始化meta客户端对象
-        meta_mysql_client_manager.init()
+        meta_mysql_client_manager.init_client()
 
         # 创建异步会话
         async with meta_mysql_client_manager.session_factory() as session:
