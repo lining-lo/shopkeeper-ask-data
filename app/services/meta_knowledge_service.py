@@ -8,6 +8,7 @@ from app.conf.meta_config import MetaConfig, TableConfig, MetricConfig
 from app.core.log import logger
 from app.models.mysql.column_info_mysql import ColumnInfoMySQL
 from app.models.mysql.metric_info_mysql import MetricInfoMySQL
+from app.models.mysql.table_info_mysql import TableInfoMySQL
 from app.repositories.es.value_es_repository import ValueESRepository
 from app.repositories.mysql.dw_mysql_repository import DWMysqlRepository
 from app.repositories.mysql.meta_mysql_repository import MetaMysqlRepository
@@ -41,7 +42,6 @@ class MetaKnowledgeService:
         # 2.2 对指标信息建立向量索引
         """
         logger.info("开始构建业务")
-        logger.info("开始构建业务")
         # 1. 处理表相关的信息
         if config.tables:
             # 1.1 将表的信息和字段的信息保存到meta库（tableinfo和column_info表）
@@ -66,8 +66,45 @@ class MetaKnowledgeService:
             logger.info("保存指标信息到qdrant向量库成功")
 
     async def _save_table_infos_to_meta_db(self, tables: list[TableConfig]) -> list[ColumnInfoMySQL]:
-        """保存表信息和字段信息到meta库"""
-        pass
+        """保存表信息和字段信息到meta库（tableinfo和column_info表）"""
+        # 准备容器
+        table_infos: list[TableInfoMySQL] = []
+        column_infos: list[ColumnInfoMySQL] = []
+
+        # 遍历, 创建对象，添加到列表
+        for table in tables:
+            table_info = TableInfoMySQL(
+                id=table.name,
+                name=table.name,
+                role=table.role,
+                description=table.description
+            )
+            table_infos.append(table_info)
+            # 查询dw中指定表的所有字段类型 dict[字段名:字段类型]
+            column_type_dict: dict[str, str] = await self.dw_mysql_repo.get_column_types(table_info.name)
+
+            # 遍历字段信息, 创建ORM对象
+            for column in table.columns:
+                # 查询dw库，取出指定字段的前10条数据
+                examples: list = await self.dw_mysql_repo.get_column_values(table_info.name, column.name)
+
+                column_info = ColumnInfoMySQL(
+                    id=f"{table.name}.{column.name}",
+                    name=column.name,
+                    type=column_type_dict[column.name],  # 需要检查表中字段类型
+                    role=column.role,
+                    examples=examples,  # 需要查表
+                    description=column.description,
+                    alias=column.alias,
+                    table_id=table_info.id
+                )
+                column_infos.append(column_info)
+
+        # 保存到数据库
+        self.meta_myql_repo.save_table_infos(table_infos)
+        self.meta_myql_repo.save_column_infos(column_infos)
+
+        return column_infos
 
     async def _save_column_infos_to_qdrant(self, column_infos: list[ColumnInfoMySQL]):
         """保存字段信息到qdrant向量库"""

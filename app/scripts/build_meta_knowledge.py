@@ -1,10 +1,10 @@
 """
   @Author:lining-lo
   @Time:2026/8/10
-  @Desc:
+  @Desc:数据仓库元知识体系自动化构建主入口
+        完成多客户端初始化、元数据入库、向量&ES索引构建与资源收尾释放
 """
 import asyncio
-from sqlalchemy.ext.asyncio import AsyncSession
 from app.clients.embedding_client_manager import embedding_client_manager
 from app.clients.es_client_manager import es_client_manager
 from app.clients.mysql_client_manager import dw_mysql_client_manager, meta_mysql_client_manager
