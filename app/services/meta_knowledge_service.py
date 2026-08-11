@@ -3,12 +3,15 @@
   @Time:2026/8/10
   @Desc:构建元数据知识库的业务类
 """
+import uuid
+
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from app.conf.meta_config import MetaConfig, TableConfig, MetricConfig
 from app.core.log import logger
 from app.models.mysql.column_info_mysql import ColumnInfoMySQL
 from app.models.mysql.metric_info_mysql import MetricInfoMySQL
 from app.models.mysql.table_info_mysql import TableInfoMySQL
+from app.models.qdrant.column_info_qdrant import ColumnInfoQdrant
 from app.repositories.es.value_es_repository import ValueESRepository
 from app.repositories.mysql.dw_mysql_repository import DWMysqlRepository
 from app.repositories.mysql.meta_mysql_repository import MetaMysqlRepository
@@ -108,7 +111,57 @@ class MetaKnowledgeService:
 
     async def _save_column_infos_to_qdrant(self, column_infos: list[ColumnInfoMySQL]):
         """保存字段信息到qdrant向量库"""
-        pass
+        # 准备一个数组容器，存储一个字典对象（id, payload, 待向量化文本）
+        data_dict_list: list[dict] = []
+        # 遍历column_infos，创建一个字典对象，指定相应的属性，添加到数组中
+        for column_info in column_infos:
+            column_info_qdrant = ColumnInfoQdrant(
+                id=column_info.id,
+                name=column_info.name,
+                type=column_info.type,
+                role=column_info.role,
+                examples=column_info.examples,
+                description=column_info.description,
+                alias=column_info.alias,
+                table_id=column_info.table_id
+            )
+            # name
+            data_dict_list.append({
+                "id": uuid.uuid4(),
+                "embedding_text": column_info.name,
+                "payload": column_info_qdrant
+            })
+            # description
+            data_dict_list.append({
+                "id": uuid.uuid4(),
+                "embedding_text": column_info.description,
+                "payload": column_info_qdrant
+            })
+            # alias
+            for alia in column_info.alias:
+                data_dict_list.append({
+                    "id": uuid.uuid4(),
+                    "embedding_text": alia,
+                    "payload": column_info_qdrant
+                })
+
+        # 取出所有待向量化的文本对其进行批量向量化（需要分处理），得到包含所有向量列表： vectors: list[list[float]]
+        vectors: list[list[float]] = []
+        embeddint_texts = [data_dict["embedding_text"] for data_dict in data_dict_list]
+        batch_size = 32
+        for i in range(0, len(embeddint_texts), batch_size):
+            batch_embeddint_texts = embeddint_texts[i:i + batch_size]
+            batch_vectors: list[list[float]] = await self.embedding_client.aembed_documents(batch_embeddint_texts)
+            vectors.extend(batch_vectors)
+
+        # 从上面的数组容器中取出所有id组成数组：ids: list[str]
+        ids: list[str] = [data_dict["id"] for data_dict in data_dict_list]
+
+        # 从上面的数组容器中取出所有payload组成数组：payloads: list[dict]
+        payloads: list[dict] = [data_dict["payload"] for data_dict in data_dict_list]
+
+        # 调用持久层保存到向量库
+        await self.column_qdrant_repo.upsert_column_vectors(vectors, payloads, ids)
 
     async def _save_column_values_to_es(self, column_infos: list[ColumnInfoMySQL], tables: list[TableConfig]):
         """保存字段取值到es全文索引库"""
