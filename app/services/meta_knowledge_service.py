@@ -9,6 +9,7 @@ from app.conf.meta_config import MetaConfig, TableConfig, MetricConfig
 from app.core.log import logger
 from app.models.es.value_info_es import ValueInfoES
 from app.models.mysql.column_info_mysql import ColumnInfoMySQL
+from app.models.mysql.column_metric_mysql import ColumnMetricMySQL
 from app.models.mysql.metric_info_mysql import MetricInfoMySQL
 from app.models.mysql.table_info_mysql import TableInfoMySQL
 from app.models.qdrant.column_info_qdrant import ColumnInfoQdrant
@@ -195,8 +196,28 @@ class MetaKnowledgeService:
         await self.value_es_repo.insert_values(value_infos)
 
     def _save_metric_infos_to_meta_db(self, metrics: list[MetricConfig]) -> list[MetricInfoMySQL]:
-        """保存指标信息到meta库"""
-        pass
+        """保存指标信息到meta库（metric_info和culumn_metric表）"""
+        metric_infos: list[MetricInfoMySQL] = []
+        column_metrics: list[ColumnMetricMySQL] = []
+
+        for metric in metrics:
+            metric_infos.append(MetricInfoMySQL(
+                id=metric.name,
+                name=metric.name,
+                description=metric.description,
+                relevant_columns=metric.relevant_columns,
+                alias=metric.alias
+            ))
+            for column_id in metric.relevant_columns:
+                column_metrics.append(ColumnMetricMySQL(
+                    column_id=column_id,
+                    metric_id=metric.name
+                ))
+
+        self.meta_myql_repo.save_metric_infos(metric_infos)
+        self.meta_myql_repo.save_column_metrics(column_metrics)
+
+        return metric_infos
 
     async def _save_metric_infos_to_qdrant(self, metric_infos: list[MetricInfoMySQL]):
         """保存指标信息到qdrant向量库"""
