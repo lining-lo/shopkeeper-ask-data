@@ -6,7 +6,6 @@
 """
 from qdrant_client import AsyncQdrantClient
 from qdrant_client.http.models import models
-
 from app.conf.app_config import app_config
 from app.models.qdrant.column_info_qdrant import ColumnInfoQdrant
 
@@ -24,6 +23,7 @@ class ColumnQdrantRepository:
 
         if await client.collection_exists(collection_name=collection_name):
             await client.delete_collection(collection_name=collection_name)
+
         await client.create_collection(
             collection_name=collection_name,  # 集合名称
             vectors_config=models.VectorParams(

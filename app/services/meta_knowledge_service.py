@@ -13,6 +13,7 @@ from app.models.mysql.column_metric_mysql import ColumnMetricMySQL
 from app.models.mysql.metric_info_mysql import MetricInfoMySQL
 from app.models.mysql.table_info_mysql import TableInfoMySQL
 from app.models.qdrant.column_info_qdrant import ColumnInfoQdrant
+from app.models.qdrant.metric_info_qdrant import MetricInfoQdrant
 from app.repositories.es.value_es_repository import ValueESRepository
 from app.repositories.mysql.dw_mysql_repository import DWMysqlRepository
 from app.repositories.mysql.meta_mysql_repository import MetaMysqlRepository
@@ -221,4 +222,52 @@ class MetaKnowledgeService:
 
     async def _save_metric_infos_to_qdrant(self, metric_infos: list[MetricInfoMySQL]):
         """保存指标信息到qdrant向量库"""
-        pass
+        # 准备一个数组容器，存储一个字典对象（id, payload, 待向量化文本）
+        data_dict_list: list[dict] = []
+
+        # 遍历column_infos，创建一个字典对象，指定相应的属性，添加到数组中
+        for metric_info in metric_infos:
+            metric_info_qdrant = MetricInfoQdrant(
+                id=metric_info.id,
+                name=metric_info.name,
+                description=metric_info.description,
+                alias=metric_info.alias,
+                relevant_columns=metric_info.relevant_columns
+            )
+            # name
+            data_dict_list.append({
+                "id": uuid.uuid4(),
+                "embedding_text": metric_info.name,
+                "payload": metric_info_qdrant
+            })
+            # description
+            data_dict_list.append({
+                "id": uuid.uuid4(),
+                "embedding_text": metric_info.description,
+                "payload": metric_info_qdrant
+            })
+            # alias
+            for alia in metric_info.alias:
+                data_dict_list.append({
+                    "id": uuid.uuid4(),
+                    "embedding_text": alia,
+                    "payload": metric_info_qdrant
+                })
+
+        # 取出所有待向量化的文本对其进行批量向量化（需要分处理），得到包含所有向量列表： vectors: list[list[float]]
+        vectors: list[list[float]] = []
+        embeddint_texts = [data_dict["embedding_text"] for data_dict in data_dict_list]
+        batch_size = 32
+        for i in range(0, len(embeddint_texts), batch_size):
+            batch_embeddint_texts = embeddint_texts[i:i + batch_size]
+            batch_vectors: list[list[float]] = await self.embedding_client.aembed_documents(batch_embeddint_texts)
+            vectors.extend(batch_vectors)
+
+        # 从上面的数组容器中取出所有id组成数组：ids: list[str]
+        ids: list[str] = [data_dict["id"] for data_dict in data_dict_list]
+
+        # 从上面的数组容器中取出所有payload组成数组：payloads: list[dict]
+        payloads: list[dict] = [data_dict["payload"] for data_dict in data_dict_list]
+
+        # 调用持久层保存到向量库
+        await self.metric_qdrant_repo.upsert_metric_vectors(vectors, payloads, ids)
