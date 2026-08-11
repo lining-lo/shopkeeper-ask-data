@@ -4,10 +4,10 @@
   @Desc:构建元数据知识库的业务类
 """
 import uuid
-
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from app.conf.meta_config import MetaConfig, TableConfig, MetricConfig
 from app.core.log import logger
+from app.models.es.value_info_es import ValueInfoES
 from app.models.mysql.column_info_mysql import ColumnInfoMySQL
 from app.models.mysql.metric_info_mysql import MetricInfoMySQL
 from app.models.mysql.table_info_mysql import TableInfoMySQL
@@ -165,7 +165,34 @@ class MetaKnowledgeService:
 
     async def _save_column_values_to_es(self, column_infos: list[ColumnInfoMySQL], tables: list[TableConfig]):
         """保存字段取值到es全文索引库"""
-        pass
+        # 准备一个数组容器，存储一个字典对象
+        value_infos: list[ValueInfoES] = []
+
+        # 收集配置中所有字段的sync: dict[column_id, bool]
+        column_sync_dict: dict[str, bool] = {}
+        for table in tables:
+            for column in table.columns:
+                column_sync_dict[f"{table.name}.{column.name}"] = column.sync
+
+        # 遍历所有字段信息，只有sync为True的，才创建对应的ValueInfoES对象添加到列表中
+        for column_info in column_infos:
+            sync = column_sync_dict[column_info.id]
+            if sync:
+                # 查询dw库得到字段的所有值，对每个值，创建一个ValueInfoES对象封装相关信息数据  value_infos:list[ValueInfoES]
+                values = await self.dw_mysql_repo.get_column_values(column_info.table_id, column_info.name, 100000)
+                for value in values:
+                    value_infos.append(ValueInfoES(
+                        id=f"{column_info.id}.{value}",
+                        value=value,
+                        type=column_info.type,
+                        column_id=column_info.id,
+                        column_name=column_info.name,
+                        table_id=column_info.table_id,
+                        table_name=column_info.table_id
+                    ))
+
+        # 调用持久层保存数据到ES中
+        await self.value_es_repo.insert_values(value_infos)
 
     def _save_metric_infos_to_meta_db(self, metrics: list[MetricConfig]) -> list[MetricInfoMySQL]:
         """保存指标信息到meta库"""

@@ -1,5 +1,16 @@
 """
   @Author:lining-lo
   @Time:2026/8/10
-  @Desc:
+  @Desc:ES索引单条字段样本值的数据结构类型定义，约束写入ES的字典格式
 """
+from typing import TypedDict
+
+
+class ValueInfoES(TypedDict):
+    id: str
+    value: str
+    type: str
+    column_id: str
+    column_name: str
+    table_id: str
+    table_name: str
