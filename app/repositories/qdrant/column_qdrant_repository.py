@@ -4,6 +4,8 @@
   @Desc:操作Qdrant向量索引库的持久层类
         专门处理字段信息数据
 """
+from typing import List
+
 from qdrant_client import AsyncQdrantClient
 from qdrant_client.http.models import models
 from app.conf.app_config import app_config
@@ -65,3 +67,15 @@ class ColumnQdrantRepository:
                     for j in range(len(batch_ids))
                 ],
             )
+
+    async def search(self, keyword_vector: List[float]) -> list[ColumnInfoQdrant]:
+        client = self.client
+
+        # 搜索向量
+        result = await client.query_points(
+            collection_name=self.collection_name,
+            query=keyword_vector,
+            score_threshold=0.6  # 向量相似度阈值，低于该阈值的向量将被忽略
+        )
+
+        return [ColumnInfoQdrant(**point.payload) for point in result.points]

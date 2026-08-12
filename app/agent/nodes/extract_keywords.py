@@ -6,6 +6,10 @@
 """
 import logging
 import warnings
+from app.prompt.prompt_loader import load_prompt
+from app.agent.llm import llm
+from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.prompts import PromptTemplate
 from jieba.analyse import extract_tags
 from langgraph.runtime import Runtime
 from app.agent.context import DataAgentContext
@@ -18,12 +22,12 @@ warnings.filterwarnings("ignore", category=SyntaxWarning, module="jieba")
 logging.getLogger("jieba").setLevel(logging.WARNING)
 
 
-def extract_keywords(state: DataAgentState, runtime: Runtime[DataAgentContext]) -> dict:
+async def extract_keywords(state: DataAgentState, runtime: Runtime[DataAgentContext]) -> dict:
     runtime.stream_writer({"stage": "提取关键字"})
     try:
         query = state["query"]
 
-        # 使用jiaba进行分词
+        # 1.使用jiaba进行分词
         # 定义返回指定词性的元组
         allow_pos = (
             "n",  # 名词: 数据、服务器、表格
@@ -39,11 +43,21 @@ def extract_keywords(state: DataAgentState, runtime: Runtime[DataAgentContext]) 
             "i",  # 成语
             "l",  # 常用固定短语
         )
-        result = extract_tags(query, topK=10, allowPOS=allow_pos)
-        logger.info(f"提取的关键字为：{result}")
-        # 将原始的提问也加入keys中  要利用set去重，防止query就在resuLt中
-        keyswords = list(set(result + [query]))
+        jiaba_result = extract_tags(query, topK=10, allowPOS=allow_pos)
+        logger.info(f"jiaba提取的关键字为：{jiaba_result}")
 
+        # 2.使用大模型提取关键词
+        prompt = PromptTemplate(
+            template=load_prompt("extend_keywords_for_column_recall"),
+            input_variables=["query"]
+        )
+        json_parser = JsonOutputParser()
+        chain = prompt | llm | json_parser
+        llm_result = await chain.ainvoke(input={"query": query})
+        logger.info(f"llm提取的关键字为：{llm_result}")
+
+        # 3.合并关键词，将原始的提问也加入keys中  要利用set去重，防止query就在resuLt中
+        keyswords = list(set(jiaba_result + llm_result + [query]))
         logger.info(f"抽取关键字完成：{keyswords}")
 
         return {"keywords": keyswords}
