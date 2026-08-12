@@ -97,13 +97,13 @@ tables:
         role: primary_key
         description: 日期唯一标识，格式 yyyyMMdd。
         alias: [ 日期ID, 日期 ]
-        sync: true
+        sync: false
 
       - name: year
         role: dimension
         description: 年份。
         alias: [ 年, 年份 ]
-        sync: false
+        sync: true
 
       - name: quarter
         role: dimension
