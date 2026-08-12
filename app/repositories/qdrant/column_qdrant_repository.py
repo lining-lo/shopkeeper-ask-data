@@ -69,13 +69,12 @@ class ColumnQdrantRepository:
             )
 
     async def search(self, keyword_vector: List[float]) -> list[ColumnInfoQdrant]:
+        """查询字段信息"""
         client = self.client
-
         # 搜索向量
         result = await client.query_points(
             collection_name=self.collection_name,
             query=keyword_vector,
             score_threshold=0.6  # 向量相似度阈值，低于该阈值的向量将被忽略
         )
-
         return [ColumnInfoQdrant(**point.payload) for point in result.points]
