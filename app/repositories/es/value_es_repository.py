@@ -63,3 +63,15 @@ class ValueESRepository:
             batch_operations = operations[i:i + batch_size]
             # 批量插入当前批次的数据
             await self.client.bulk(operations=batch_operations)
+
+    async def search(self, keyword: str) -> list[ValueInfoES]:
+        """根据关键词查询ES库"""
+        result = await self.client.search(
+            index=self.index_name,
+            query={  # 搜索条件
+                "match": {  # 匹配字段
+                    "value": keyword
+                }
+            }
+        )
+        return [ValueInfoES(**hit["_source"]) for hit in result["hits"]["hits"]]
