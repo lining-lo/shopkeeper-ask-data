@@ -3,6 +3,10 @@
   @Time:2026/8/12
   @Desc:召回指标节点，查询qdrant向量库
 """
+from app.prompt.prompt_loader import load_prompt
+from app.agent.llm import llm
+from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.prompts import PromptTemplate
 from langgraph.runtime import Runtime
 from app.agent.context import DataAgentContext
 from app.agent.state import DataAgentState
@@ -13,9 +17,21 @@ from app.models.qdrant.metric_info_qdrant import MetricInfoQdrant
 async def recall_metric(state: DataAgentState, runtime: Runtime[DataAgentContext]):
     runtime.stream_writer({"stage": "召回指标"})
     try:
+        query = state["query"]
         keywords = state["keywords"]
         embedding_client = runtime.context["embedding_client"]
         metric_qdrant_repo = runtime.context["metric_qdrant_repo"]
+
+        # 对query进行大模型语义化的分词，并与jiaba分词合并
+        prompt_template = PromptTemplate(
+            template=load_prompt("extend_keywords_for_metric_recall"),
+            input_variables=["query"],
+        )
+        output_parser = JsonOutputParser()
+        chain = prompt_template | llm | output_parser
+        result = await chain.ainvoke({"query": query})
+        logger.info(f"recall_metric llm keywords: {result}")
+        keywords = list(set(keywords + result))
 
         # 用来保存所有召回的指标信息对象，需要去重：key: column_id
         metric_infos_dict: dict[str, MetricInfoQdrant] = {}
