@@ -8,6 +8,16 @@ from app.models.es.value_info_es import ValueInfoES
 from app.models.qdrant.column_info_qdrant import ColumnInfoQdrant
 from app.models.qdrant.metric_info_qdrant import MetricInfoQdrant
 
+# 日期时间信息封装实体
+class DateInfoState(TypedDict):
+    date: str
+    weekday: str
+    quarter: str
+
+# 数据库环境信息封装实体
+class DBInfoState(TypedDict):
+    version: str
+    dialect: str
 
 # 列信息封装实体
 class ColumnInfoState(TypedDict):
@@ -46,15 +56,6 @@ class DataAgentState(TypedDict):
     recall_values: list[ValueInfoES]  # 召回值信息列表
     table_infos: list[TableInfoState]  # 表信息列表
     metric_infos: list[MetricInfoState]  # 指标信息列表
-
-
-# 日期时间信息封装实体
-class DateInfoState(TypedDict):
-    date: str
-    weekday: str
-    quarter: str
-
-# 数据库环境信息封装实体
-class DBInfoState(TypedDict):
-    version: str
-    dialect: str
+    date_info: DateInfoState  # 日期时间信息
+    db_info: DBInfoState  # 数据库环境信息
+    sql: str  # 生成的SQL
