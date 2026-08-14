@@ -1,7 +1,7 @@
 """
   @Author:lining-lo
   @Time:2026/8/12
-  @Desc:
+  @Desc:执行SQL节点
 """
 from langgraph.runtime import Runtime
 from app.agent.context import DataAgentContext
@@ -12,7 +12,16 @@ from app.core.log import logger
 async def execute_sql(state: DataAgentState, runtime: Runtime[DataAgentContext]):
     runtime.stream_writer({"stage": "执行SQL"})
     try:
-        return {}
+        sql = state["sql"]
+        dw_mysql_repo = runtime.context["dw_mysql_repo"]
+
+        # 执行sql
+        result = await dw_mysql_repo.execute_sql(sql)
+
+        # 将查询结果写给调用者
+        runtime.stream_writer({"result": result})
+
+        logger.info(f"执行SQL完成 result={result}")
     except Exception as e:
         logger.error(f"执行SQL失败：{str(e)}")
         raise

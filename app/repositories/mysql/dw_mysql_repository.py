@@ -40,3 +40,8 @@ class DWMysqlRepository:
     async def validate_sql(self, sql: str):
         """校验sql是否正确"""
         await self.session.execute(text(f"explain {sql}"))
+
+    async def execute_sql(self, sql: str):
+        """执行sql"""
+        result = await self.session.execute(text(sql))
+        return result.mappings().all()
