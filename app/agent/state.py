@@ -46,3 +46,15 @@ class DataAgentState(TypedDict):
     recall_values: list[ValueInfoES]  # 召回值信息列表
     table_infos: list[TableInfoState]  # 表信息列表
     metric_infos: list[MetricInfoState]  # 指标信息列表
+
+
+# 日期时间信息封装实体
+class DateInfoState(TypedDict):
+    date: str
+    weekday: str
+    quarter: str
+
+# 数据库环境信息封装实体
+class DBInfoState(TypedDict):
+    version: str
+    dialect: str
