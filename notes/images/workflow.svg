@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300"
+     role="img" aria-labelledby="wf-title wf-desc" xml:lang="zh-CN">
+  <title id="wf-title">掌柜问数智能体工作流</title>
+  <desc id="wf-desc">五个阶段:理解问题、多路召回、过滤增强、生成 SQL、执行返回,由 LangGraph 编排。</desc>
+
+  <rect width="1200" height="300" rx="24" fill="#0B0E14"/>
+  <rect x="0.75" y="0.75" width="1198.5" height="298.5" rx="24" fill="none" stroke="#232B3A" stroke-width="1.5"/>
+
+  <g id="stage-01" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+    <rect x="40" y="55" width="208" height="190" rx="12" fill="#151A24" stroke="#232B3A" stroke-width="1.5"/>
+    <text x="58" y="86" font-size="18" fill="#4C8DFF" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">01</text>
+    <text x="58" y="122" font-size="24" font-weight="600" fill="#F2F5FA">理解问题</text>
+    <rect x="58" y="136" width="32" height="3" rx="1.5" fill="#4C8DFF"/>
+    <text x="58" y="164" font-size="17" fill="#C7CFDC" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">extract_keywords</text>
+    <text x="58" y="226" font-size="16" fill="#8E99AD">jieba 分词 + LLM</text>
+    <text x="58" y="248" font-size="16" fill="#8E99AD">扩展关键词</text>
+  </g>
+
+  <g id="stage-02" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+    <rect x="272" y="55" width="208" height="190" rx="12" fill="#151A24" stroke="#232B3A" stroke-width="1.5"/>
+    <text x="290" y="86" font-size="18" fill="#4C8DFF" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">02</text>
+    <text x="290" y="122" font-size="24" font-weight="600" fill="#F2F5FA">多路召回</text>
+    <rect x="290" y="136" width="32" height="3" rx="1.5" fill="#4C8DFF"/>
+    <text x="290" y="164" font-size="17" fill="#C7CFDC" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">recall_column</text>
+    <text x="290" y="190" font-size="17" fill="#C7CFDC" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">recall_metric</text>
+    <text x="290" y="216" font-size="17" fill="#C7CFDC" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">recall_value</text>
+    <text x="290" y="244" font-size="16" fill="#8E99AD">三路并行语义/全文召回</text>
+  </g>
+
+  <g id="stage-03" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+    <rect x="504" y="55" width="208" height="190" rx="12" fill="#151A24" stroke="#232B3A" stroke-width="1.5"/>
+    <text x="522" y="86" font-size="18" fill="#4C8DFF" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">03</text>
+    <text x="522" y="122" font-size="24" font-weight="600" fill="#F2F5FA">过滤增强</text>
+    <rect x="522" y="136" width="32" height="3" rx="1.5" fill="#4C8DFF"/>
+    <text x="522" y="164" font-size="17" fill="#C7CFDC" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">filter_table</text>
+    <text x="522" y="190" font-size="17" fill="#C7CFDC" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">filter_metric</text>
+    <text x="522" y="216" font-size="17" fill="#C7CFDC" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">add_extra_context</text>
+    <text x="522" y="244" font-size="16" fill="#8E99AD">过滤无关表字段与指标</text>
+  </g>
+
+  <g id="stage-04" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+    <rect x="736" y="55" width="208" height="190" rx="12" fill="#151A24" stroke="#232B3A" stroke-width="1.5"/>
+    <text x="754" y="86" font-size="18" fill="#4C8DFF" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">04</text>
+    <text x="754" y="122" font-size="24" font-weight="600" fill="#F2F5FA">生成 SQL</text>
+    <rect x="754" y="136" width="32" height="3" rx="1.5" fill="#4C8DFF"/>
+    <text x="754" y="164" font-size="17" fill="#C7CFDC" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">generate_sql</text>
+    <text x="754" y="190" font-size="17" fill="#C7CFDC" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">validate_sql</text>
+    <text x="754" y="216" font-size="17" fill="#C7CFDC" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">correct_sql</text>
+    <text x="754" y="244" font-size="16" fill="#8E99AD">EXPLAIN 校验,自动校正</text>
+  </g>
+
+  <g id="stage-05" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+    <rect x="968" y="55" width="208" height="190" rx="12" fill="#151A24" stroke="#232B3A" stroke-width="1.5"/>
+    <text x="986" y="86" font-size="18" fill="#3ECF8E" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">05</text>
+    <text x="986" y="122" font-size="24" font-weight="600" fill="#F2F5FA">执行返回</text>
+    <rect x="986" y="136" width="32" height="3" rx="1.5" fill="#3ECF8E"/>
+    <text x="986" y="164" font-size="17" fill="#C7CFDC" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">execute_sql</text>
+    <text x="986" y="226" font-size="16" fill="#8E99AD">执行查询,SSE 流式</text>
+    <text x="986" y="248" font-size="16" fill="#8E99AD">返回结果表格</text>
+  </g>
+
+  <!-- 阶段连接箭头 -->
+  <g fill="none" stroke="#4C8DFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 252 150 L 264 150 M 259 144 L 268 150 L 259 156"/>
+    <path d="M 484 150 L 496 150 M 491 144 L 500 150 L 491 156"/>
+    <path d="M 716 150 L 728 150 M 723 144 L 732 150 L 723 156"/>
+    <path d="M 948 150 L 960 150 M 955 144 L 964 150 L 955 156"/>
+  </g>
+</svg>

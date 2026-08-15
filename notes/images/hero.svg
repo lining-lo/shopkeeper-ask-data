@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420"
+     role="img" aria-labelledby="hero-title hero-desc" xml:lang="zh-CN">
+  <title id="hero-title">掌柜问数 — NL2SQL 智能问数系统</title>
+  <desc id="hero-desc">用自然语言提问,系统自动生成 SQL 并返回数据仓库查询结果。右侧演示从提问到 SQL 再到结果表格的完整流程。</desc>
+
+  <rect width="1200" height="420" rx="24" fill="#0B0E14"/>
+  <rect x="0.75" y="0.75" width="1198.5" height="418.5" rx="24" fill="none" stroke="#232B3A" stroke-width="1.5"/>
+
+  <!-- 左侧标题区 -->
+  <g id="title-block" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+    <text x="56" y="72" font-size="20" letter-spacing="4" fill="#8E99AD"
+          font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">NL2SQL · DATA WAREHOUSE Q&amp;A</text>
+    <text x="52" y="156" font-size="84" font-weight="700" fill="#F2F5FA">掌柜问数</text>
+    <rect x="56" y="174" width="72" height="6" rx="3" fill="#4C8DFF"/>
+    <text x="56" y="212" font-size="26" fill="#F2F5FA">用自然语言提问,自动生成 SQL,</text>
+    <text x="56" y="248" font-size="26" fill="#F2F5FA">直接返回数据仓库查询结果</text>
+    <text x="56" y="304" font-size="18" fill="#8E99AD"
+          font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">FastAPI · LangGraph · Qdrant · ES · DeepSeek</text>
+  </g>
+
+  <!-- 右侧问答演示区 -->
+  <g id="demo-strip" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+
+    <!-- 卡片一:用户提问 -->
+    <rect x="620" y="44" width="532" height="80" rx="12" fill="#151A24" stroke="#232B3A" stroke-width="1.5"/>
+    <text x="636" y="66" font-size="16" fill="#8E99AD"
+          font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">自然语言提问</text>
+    <text x="1140" y="66" font-size="16" text-anchor="end" fill="#4C8DFF"
+          font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">USER QUERY</text>
+    <rect x="636" y="78" width="252" height="36" rx="18" fill="#1B2333" stroke="#2C3A55" stroke-width="1"/>
+    <text x="762" y="102" font-size="20" text-anchor="middle" fill="#E6EAF2"
+          font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">"华北地区销售总额?"</text>
+
+    <!-- 箭头 -->
+    <path d="M 886 132 L 886 140 M 880 136 L 886 144 L 892 136" fill="none" stroke="#4C8DFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- 卡片二:生成 SQL -->
+    <rect x="620" y="148" width="532" height="180" rx="12" fill="#151A24" stroke="#232B3A" stroke-width="1.5"/>
+    <text x="636" y="170" font-size="16" fill="#8E99AD"
+          font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">自动生成 SQL</text>
+    <text x="1140" y="170" font-size="16" text-anchor="end" fill="#4C8DFF"
+          font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">LLM · LANGGRAPH</text>
+    <rect x="636" y="184" width="500" height="134" rx="8" fill="#0E1420" stroke="#232B3A" stroke-width="1"/>
+    <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="19">
+      <text x="652" y="210" fill="#FFB454">SELECT</text>
+      <text x="724" y="210" fill="#D7DEEA">SUM(order_amount) AS GMV</text>
+      <text x="652" y="235" fill="#FFB454">FROM</text>
+      <text x="700" y="235" fill="#D7DEEA">fact_order fo</text>
+      <text x="652" y="260" fill="#FFB454">JOIN</text>
+      <text x="700" y="260" fill="#D7DEEA">dim_region dr</text>
+      <text x="652" y="285" fill="#8E99AD">  ON fo.region_id = dr.region_id</text>
+      <text x="652" y="310" fill="#FFB454">WHERE</text>
+      <text x="716" y="310" fill="#D7DEEA">dr.region_name = </text>
+      <text x="916" y="310" fill="#3ECF8E">'华北';</text>
+    </g>
+
+    <!-- 箭头 -->
+    <path d="M 886 336 L 886 342 M 880 338 L 886 346 L 892 338" fill="none" stroke="#4C8DFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- 卡片三:执行结果 -->
+    <rect x="620" y="350" width="532" height="56" rx="12" fill="#151A24" stroke="#232B3A" stroke-width="1.5"/>
+    <text x="636" y="372" font-size="16" fill="#8E99AD"
+          font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">执行结果</text>
+    <text x="1100" y="372" font-size="18" text-anchor="end" fill="#8E99AD"
+          font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">地区</text>
+    <text x="1140" y="372" font-size="18" text-anchor="end" fill="#8E99AD"
+          font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">销售总额</text>
+    <line x1="636" y1="380" x2="1140" y2="380" stroke="#232B3A" stroke-width="1"/>
+    <text x="1100" y="398" font-size="20" text-anchor="end" fill="#F2F5FA"
+          font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">华北</text>
+    <text x="1140" y="398" font-size="20" text-anchor="end" fill="#3ECF8E"
+          font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">41,099.5</text>
+  </g>
+</svg>
